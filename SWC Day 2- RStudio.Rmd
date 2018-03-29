@@ -177,4 +177,72 @@ ggplot(gapminder, aes(x = year, y = lifeExp, group = country, color = continent)
   ggtitle("Time series of GDP per capita") + ylab("GDP per capita")
 ```
 
+6. Saving your plot into a variable: 
+```{r}
+graph_life_gdp <- ggplot(gapminder, aes(y = lifeExp, x = gdpPercap)) +
+  geom_point(alpha = 0.2) +
+  scale_x_log10()
+#it won't print your graphic (if saved as a variable) unless you call the variable
+graph_life_gdp
+```
+
+7. Linear regression: use geom_smooth
+Hey! You might have noticed that since we've saved the graph above as a variable (graph_life_gdp) above, we can now do a bunch of things to it (like adding the linear regression line). We could save this new graph with the linear regression line, if I wanted to. 
+```{r}
+graph_life_gdp + geom_smooth(method='loess') 
+```
+Now, let's put a second linear regression with the lm method (just in yellow) on top: 
+```{r}
+graph_life_gdp + geom_smooth(method='loess') + geom_smooth(method = 'lm', color = 'yellow')
+```
+Don't forget that you can go to the HELP tab and get help with the packages you're using (like how the heck do I get a confidence interval!?). 
+
+8. Faceting: 
+What if I want to compare multiple graphs in multiple conditions or subgroups. 
+So let's take that graph_life_gdp:
+```{r}
+graph_life_gdp
+```
+This graphi s okay, but it's all different years and places all combined into one. 
+What if I wanted to look at a bunch of different graphs but differentiated by year? (AND keep the axeses the same!!!) 
+```{r}
+graph_life_gdp + facet_wrap( ~ year)
+```
+THIS IS THE RAW, UNBRIDLED POWER OF FACET WRAP. 
+
+We can also do the same fun stuff we did above, like add a linear regression line: 
+```{r}
+graph_life_gdp +
+  facet_wrap( ~ year) +
+  geom_smooth(method = 'lm')
+```
+9. Facet Grid: 
+First, let's tie this back to dplyr: 
+
+Make a new variable (using dyplyr) with the data filtered after 1997:
+```{r}
+post1997 <- gapminder %>% filter(year >=1997)
+```
+Take some code from above to re-plot (with some minor modifications). We're going to see facet_grid which makes new sub-graphs on 2 different categorical variables. Also, these work side-by-side (same axeses) which is INCREDIBLE!!! 
+```{r}
+ggplot(post1997, aes(y = lifeExp, x = gdpPercap)) +
+  geom_point(alpha = 0.2) +
+  facet_grid( year ~ continent)
+```
+#Assignment: Plot the data by year
+```{r}
+
+```
+
+
+##R Markdown: 
+Okay, now we're going to get meta-meta. Talking about RMarkdown INSIDE of RMarkdown. Okay bear with me. If you've made it this far, you've probably already figured out how to make an RMarkdown (.rmd) file, but here goes. 
+
+1. Making an RMarkdown file: 
+a. Go to File --> New File --> RMarkdown. You might have to install RMarkdown. Do it! 
+b. Enter the name of the document you want to make and your name. 
+c. Go to town! 
+
+2. Editing your rMarkdown file: 
+You can insert your data and analysis in what is called "chunks". You can insert chunks of R code (plus other kinds of code, such as python, bash command line etc.). This can be found in the "insert" button at the top of your window. Just type your code in these chunks and write whatever you want (notes, etc.) outside of the chunks and you're good to go! 
 
