@@ -229,11 +229,52 @@ ggplot(post1997, aes(y = lifeExp, x = gdpPercap)) +
   geom_point(alpha = 0.2) +
   facet_grid( year ~ continent)
 ```
-#Assignment: Plot the data by year
+#Assignment: Create a density plot of GDP per capita, filled by continent
 ```{r}
-
+ggplot(gapminder, aes(gdpPercap, color = continent, fill = continent)) +
+  geom_density(alpha = 0.2)
 ```
+We can also add geom_run to give more granualar distribution:
+```{r}
+ggplot(gapminder, aes(gdpPercap, color = continent, fill = continent)) +
+  geom_density(alpha = 0.2) +
+  geom_rug (alpha = 0.5)
+```
+##tidyr: 
 
+Import new "messed up" data file: 
+```{r}
+library(readr)
+gapminder_wide <- read_csv("data/gapminder_wide.csv")
+head(gapminder_wide)
+```
+Oh crap! This looks totally different from the first gapminder. How do we coax it into what we had before?!
+
+First, let's make all of these gdpPercap_1952 columns into a new column with the old columns as rows as the new column. We're gonna separate out the name (using separate) into 
+```{r}
+gapminder_long <- gather(gapminder_wide, "key", "value", -country, - continent) %>% 
+  separate(key, into = c('column_name', 'year'), sep = '_')
+head(gapminder_long)
+```
+Now let's plot it (faceted by column volue, which are GDP per capita, life expectancy, and population) 
+```{r}
+ggplot(gapminder_long, aes(value, color = column_name)) +
+  facet_wrap( ~ column_name, scales = "free") +
+  geom_density()
+```
+Okay, last step: take all data that was in "value" column and put in a new column with whatever is in gdpPercap.
+```{r}
+gapminder_long %>% spread(column_name, value) %>% head()
+```
+Now we want to combine muliple things together: 
+See, we can combine tidyr gather with ggplot! See, they can play nicely together. 
+```{r}
+gather(gapminder_wide, "key", "value", -country, - continent) %>% 
+  separate(key, into = c('column_name', 'year'), sep = '_') %>%
+  ggplot(aes(value)) +
+  facet_wrap( ~ column_name, scales = "free") +
+  geom_density()
+```
 
 ##R Markdown: 
 Okay, now we're going to get meta-meta. Talking about RMarkdown INSIDE of RMarkdown. Okay bear with me. If you've made it this far, you've probably already figured out how to make an RMarkdown (.rmd) file, but here goes. 
