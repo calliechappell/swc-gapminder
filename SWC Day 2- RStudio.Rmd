@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ##Summary: 
+These are notes taken by Callie Chappell over the lectures given by Simon P. in day 2 of the Software Carpentry Workshop that ran from March 28-29th, 2018.
+
 
 #Import Data: 
 ```{r}
