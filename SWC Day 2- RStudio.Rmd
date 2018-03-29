@@ -1,8 +1,10 @@
 ---
-title: "SWC Day 2: RStudio"
+title: 'SWC Day 2: RStudio'
 author: "Callie Chappell"
 date: "3/29/2018"
-output: word_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -20,10 +22,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 gapminder <- read_csv("data/gapminder-FiveYearData.csv")
 head(gapminder)
-
 ```
 
-#old way: 
+#A quick recap on base R:  
+Yesterday, we learned a lot about subsetting data using basic R syntax. Here's a quick reminder: 
 ```{r}
 #Recap: subsetting 
 x <- 1:10
@@ -31,20 +33,22 @@ x
 x[2]
 x[c(TRUE, FALSE)] #will return all odd numbers (will only give you values if you have true, which are the odds)
 
-#Vectorization: 
+#Recap: vectorization: 
 x > 2 #will compare all values in vector to 2. 
 
-#Vectorization and subsetting: 
+#Recap: combining vectorization and subsetting: 
 x[x>3] #evaluate vector x, and return (subset) all values >3. 
 
-#how does this work with a dataframe? 
+#Recap: how does this work with a dataframe? 
 head(gapminder)
+
 #select rows in population < 1000, and get all of the columns 
 gapminder[gapminder$pop <100000, ]
+
 #select rows in population < 1000, and get some of the columns (2-4): 
 gapminder[gapminder$pop <100000, c(2:4)]
 ```
-
+But let's be honest...this is really confusing. A good (and MUCH more intuitive) alternative is dplyr! 
 
 ##dplyr: 
 Load dyplr: 
@@ -54,19 +58,33 @@ library(tidyverse)
 library(dplyr)
 ```
 
+dplyr is part of the tidyverse in R and is used to sort, filter, rearrange, and a bunch of other stuff. 
+
+In this section, we'll be going over the following dyplyr verbs: 
+- select
+- pipes (%>%)
+- filter
+- group_by
+- summarize
+- mutate
+
+P.S. for right now, you can ignore the "%>% head"" at the end of all of this stuff. All this does is just show the very top of the output so everything doesn't get all clogged up with data. Later, we'll learn that the %>% is called a pipe and actually is just the same as the | we learned about in the command line.   
+
+Okay, let's go! 
+
 1. Select: select specific columns
 ```{r cars}
 #old way: 
 gapminder[,c('country', 'year')]
 #dplyr way: dyplyr knows that country and year refers to columns and not variables (like gapminder)
-select(gapminder, country, year)
+select(gapminder, country, year) %>% head
 ```
 
 2. Pipes: send data through multiple commands without creating intermediate outputs 
 ```{r}
 #pipes: %>%
-gapminder %>% select(country, year)
-gapminder %>% select(ends_with('y'))
+gapminder %>% select(country, year) %>% head
+gapminder %>% select(ends_with('y')) %>% head
 gapminder %>% select(-ends_with('y')) %>% head
 ```
 
@@ -74,9 +92,9 @@ gapminder %>% select(-ends_with('y')) %>% head
 ```{r}
 #filter: 
 #filter by year after 1990
-gapminder %>% filter(year > 1990)
+gapminder %>% filter(year > 1990) %>% head
 #filter after 1990 and by asia: 
-gapminder %>% filter(year > 1990, continent == "Asia") %>% select(country, gdpPercap)
+gapminder %>% filter(year > 1990, continent == "Asia") %>% select(country, gdpPercap) %>% head
 
 #can save the results as a variable: 
 post1990 <- gapminder %>% filter(year > 1990)
@@ -86,20 +104,77 @@ head(post1990)
 ```{r}
 #Group-_by:
 #groupby allows you to pick any variable you want to see: 
-post1990 %>% group_by(continent)
+post1990 %>% group_by(continent) %>% head
 ```
 
 5.Summarize: Create new variables or columns based on existing data
 ```{r}
 #summarize: 
-post1990 %>% summarize(mean_pop = mean(pop, na.rm = TRUE))
-post1990 %>% group_by(continent) %>% summarize(country_count = n(), gdp_mean = mean(gdpPercap))
+post1990 %>% summarize(mean_pop = mean(pop, na.rm = TRUE)) %>% head
+post1990 %>% group_by(continent) %>% summarize(country_count = n(), gdp_mean = mean(gdpPercap)) %>% head
 ```
 
 6. Mutate: Create new variables based on combinations of existing variables 
 ```{r}
-gapminder %>% mutate(gdp = pop * gdpPercap)
-gapminder %>% mutate(gdp = pop * gdpPercap) %>% mutate (gdp = gdp / 1000000)
+gapminder %>% mutate(gdp = pop * gdpPercap) %>% head
+gapminder %>% mutate(gdp = pop * gdpPercap) %>% mutate (gdp = gdp / 1000000) %>% head
+```
+
+#ggplot: 
+ggplot is a great way to create plots of your data! Luckily, it's part of the tidyverse, so yu already loaded it. 
+
+1. Basic components of plotting in ggplot: 
+  a. ggplot() = this calls the package ggplot (part of the tidyverse)
+  b. ggplot(gapminder, ) = this tells ggplot what data you want to use 
+  c. aes(x=, y=) = this is where you define what columns will be your x and y axes
+  d. geom_point() = this is where you define what kind of plot you want: 
+        geom_point() = scatter plot
+        geom_bar() = bar plot 
+        etc. 
+      
+Let's make our first plot: 
+```{r}
+library(ggplot2)
+ggplot(gapminder, aes(y = lifeExp, x = gdpPercap)) +
+  geom_point()
+```
+2. Now, we want to plot each country's life expectancy by year and by continent. 
+Let's review a few things: 
+1. We're using the group function in aes to group by country
+2. We're using the color function in aes to color by continent 
+3. We're using multiple geoms (geom_point and geom_line) to plot them on top of each other. Turns out, we can combine geoms. 
+
+```{r}
+ggplot(gapminder, aes(x = year, y = lifeExp, group = country, color = continent)) +
+  geom_point() +
+  geom_line()
+```
+
+3.Changing the color of points in ggplot:
+A. Manually color points
+```{r}
+ggplot(gapminder, aes(y = lifeExp, x = gdpPercap)) +
+  geom_point(color = "yellow")
+```
+B. Make points transparent: 
+```{r}
+ggplot(gapminder, aes(y = lifeExp, x = gdpPercap)) +
+  geom_point(alpha = 0.2)
+```
+
+4. Scale data: 
+```{r}
+ggplot(gapminder, aes(y = lifeExp, x = gdpPercap)) +
+  geom_point(alpha = 0.2) +
+  scale_x_log10()
+```
+
+5. Title your graph and axess: 
+```{r}
+ggplot(gapminder, aes(x = year, y = lifeExp, group = country, color = continent)) +
+  geom_point() +
+  geom_line() +
+  ggtitle("Time series of GDP per capita") + ylab("GDP per capita")
 ```
 
 
