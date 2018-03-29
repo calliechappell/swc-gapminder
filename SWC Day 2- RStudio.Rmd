@@ -1,0 +1,105 @@
+---
+title: "SWC Day 2: RStudio"
+author: "Callie Chappell"
+date: "3/29/2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Summary: 
+
+#Import Data: 
+```{r}
+#install.packages('tidyverse')
+#install.packages('rmarkdown')
+
+#import gapminder: 
+library(readr)
+gapminder <- read_csv("data/gapminder-FiveYearData.csv")
+head(gapminder)
+
+```
+
+#old way: 
+```{r}
+#Recap: subsetting 
+x <- 1:10
+x
+x[2]
+x[c(TRUE, FALSE)] #will return all odd numbers (will only give you values if you have true, which are the odds)
+
+#Vectorization: 
+x > 2 #will compare all values in vector to 2. 
+
+#Vectorization and subsetting: 
+x[x>3] #evaluate vector x, and return (subset) all values >3. 
+
+#how does this work with a dataframe? 
+head(gapminder)
+#select rows in population < 1000, and get all of the columns 
+gapminder[gapminder$pop <100000, ]
+#select rows in population < 1000, and get some of the columns (2-4): 
+gapminder[gapminder$pop <100000, c(2:4)]
+```
+
+
+##dplyr: 
+Load dyplr: 
+```{r}
+#Dplyr: package inside of tidyverse 
+library(tidyverse)
+library(dplyr)
+```
+
+1. Select: select specific columns
+```{r cars}
+#old way: 
+gapminder[,c('country', 'year')]
+#dplyr way: dyplyr knows that country and year refers to columns and not variables (like gapminder)
+select(gapminder, country, year)
+```
+
+2. Pipes: send data through multiple commands without creating intermediate outputs 
+```{r}
+#pipes: %>%
+gapminder %>% select(country, year)
+gapminder %>% select(ends_with('y'))
+gapminder %>% select(-ends_with('y')) %>% head
+```
+
+3.Filter values by a specific value or quality
+```{r}
+#filter: 
+#filter by year after 1990
+gapminder %>% filter(year > 1990)
+#filter after 1990 and by asia: 
+gapminder %>% filter(year > 1990, continent == "Asia") %>% select(country, gdpPercap)
+
+#can save the results as a variable: 
+post1990 <- gapminder %>% filter(year > 1990)
+head(post1990)
+```
+4. Group_by: group variables by a categorical variable 
+```{r}
+#Group-_by:
+#groupby allows you to pick any variable you want to see: 
+post1990 %>% group_by(continent)
+```
+
+5.Summarize: Create new variables or columns based on existing data
+```{r}
+#summarize: 
+post1990 %>% summarize(mean_pop = mean(pop, na.rm = TRUE))
+post1990 %>% group_by(continent) %>% summarize(country_count = n(), gdp_mean = mean(gdpPercap))
+```
+
+6. Mutate: Create new variables based on combinations of existing variables 
+```{r}
+gapminder %>% mutate(gdp = pop * gdpPercap)
+gapminder %>% mutate(gdp = pop * gdpPercap) %>% mutate (gdp = gdp / 1000000)
+```
+
+
