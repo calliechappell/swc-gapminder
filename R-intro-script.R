@@ -1,0 +1,56 @@
+#SWC R Intro
+
+#read in CSV file: 
+cats <- read_csv("data/feline-data.csv")
+
+#grab one column: 
+cats$coat
+cats$weight +2
+cats$weight
+cats$weight + cats$likes_string
+
+#check data types: 
+typeof(cats$weight)
+
+#make 3 vectors with (apparently) mixed types:  
+quiz_vector_1 <- c(2,6,'3')
+quiz_vector_2 <- c('a', TRUE)
+quiz_vector_3 <- c(0, TRUE)
+
+typeof(quiz_vector_1)
+typeof(quiz_vector_2)
+typeof(quiz_vector_3)
+
+#factors: 
+str(cats$coats)
+levels(cats$coat)
+cats
+levels(cats$coat)
+#re-order factors manually: 
+factor(cats$coat, levels=c("tabby", "calico","black"))
+levels(cats$coat)
+
+
+# dataframes: 
+gapminder <- read.csv("data/gapminder-FiveYearData.csv")
+str(gapminder)
+
+#subetting: 
+x <- c(5.4, 6.2, 7.1, 4.8, 7.5) 
+names(x) <- c('a', 'b', 'c', 'd', 'e')
+x
+x[1]
+
+#method 1: 
+x[c(2,3,4)]
+#method 2:
+x[c(2:4)]
+#method 3: 
+x[-c(1,5)]
+
+head (gapminder$pop)
+head(gapminder[[1]])
+head(gapminder[3])
+
+
+gapminder[gapminder$year(1957)]
